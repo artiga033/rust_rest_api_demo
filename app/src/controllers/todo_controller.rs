@@ -1,11 +1,19 @@
-use crate::entities::todo::{self, CreateTodoDto, Todo, TodoDto, UpdateTodoDto};
-use crate::utils::{PagedList, PagedListQueryParams};
+use crate::models::paged_list::{PagedList, PagedListQueryParams};
+use crate::models::todo::{self, CreateTodoDto, Todo, TodoDto, UpdateTodoDto};
 use actix_web::http::header;
 use actix_web::{delete, get, patch, post, put, Responder};
 use actix_web::{web, HttpResponse};
 use sea_orm::entity::*;
 use sea_orm::DatabaseConnection;
 
+/// Get Todo Items
+#[utoipa::path(
+    tag = "Todo",
+    params(PagedListQueryParams),
+    responses(
+        (status=200,body=TodoDtoList)
+    )
+)]
 #[get("/todo")]
 pub async fn get_todos(
     pl_params: web::Query<PagedListQueryParams>,
@@ -17,6 +25,9 @@ pub async fn get_todos(
         Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
     }
 }
+
+/// Get Todo Item with Id
+#[utoipa::path(tag = "Todo")]
 #[get("todo/{id}")]
 pub async fn get_todo(id: web::Path<i32>, db: web::Data<DatabaseConnection>) -> impl Responder {
     let entity = Todo::find_by_id(*id).one(db.get_ref()).await;
@@ -27,6 +38,7 @@ pub async fn get_todo(id: web::Path<i32>, db: web::Data<DatabaseConnection>) -> 
     }
 }
 
+#[utoipa::path(tag="Todo",request_body(content=CreateTodoDto,content_type = "application/json"))]
 #[post("/todo")]
 pub async fn post_todo(
     dto: web::Json<CreateTodoDto>,
@@ -41,6 +53,7 @@ pub async fn post_todo(
     }
 }
 
+#[utoipa::path(tag = "Todo")]
 #[put("/todo/{id}")]
 pub async fn put_todo(
     id: web::Path<i32>,
@@ -65,6 +78,7 @@ pub async fn put_todo(
     }
 }
 
+#[utoipa::path(tag = "Todo",request_body(content=UpdateTodoDto,content_type="application/json"))]
 #[patch("/todo/{id}")]
 pub async fn patch_todo(
     id: web::Path<i32>,
@@ -92,7 +106,7 @@ pub async fn patch_todo(
         Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
     }
 }
-
+#[utoipa::path(tag = "Todo")]
 #[delete("/todo/{id}")]
 pub async fn delete_todo(id: web::Path<i32>, db: web::Data<DatabaseConnection>) -> impl Responder {
     match Todo::delete_by_id(*id).exec(db.get_ref()).await {
@@ -101,6 +115,7 @@ pub async fn delete_todo(id: web::Path<i32>, db: web::Data<DatabaseConnection>) 
     }
 }
 
+#[utoipa::path(tag = "Todo")]
 #[put("/todo/{id}/finish")]
 pub async fn put_todo_finish(
     id: web::Path<i32>,
@@ -121,6 +136,8 @@ pub async fn put_todo_finish(
         Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
     }
 }
+
+#[utoipa::path(tag = "Todo")]
 #[delete("/todo/{id}/finish")]
 pub async fn delete_todo_finish(
     id: web::Path<i32>,

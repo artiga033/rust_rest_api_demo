@@ -1,5 +1,5 @@
 pub mod controllers;
 pub mod db;
-pub mod entities;
+pub mod models;
 pub mod route;
-pub mod utils;
+pub mod swagger;

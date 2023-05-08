@@ -1,25 +1,28 @@
-pub use super::entities::{prelude::*, todo::*};
+pub use super::gen::{prelude::*, todo::*};
 
 use sea_orm::ActiveValue;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, PartialEq, ToSchema)]
 pub struct CreateTodoDto {
     pub expire_at: String,
     pub content: Option<String>,
 }
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, PartialEq, ToSchema)]
 pub struct UpdateTodoDto {
     pub expire_at: Option<String>,
     pub content: Option<String>,
 }
-#[derive(Debug, Serialize, PartialEq)]
+#[derive(Debug, Serialize, PartialEq, ToSchema)]
 pub struct TodoDto {
     pub id: i32,
     pub expire_at: String,
     pub content: Option<String>,
     pub is_finished: bool,
 }
+
+pub type TodoDtoList = super::paged_list::TodoDtoList;
 
 impl From<CreateTodoDto> for ActiveModel {
     fn from(dto: CreateTodoDto) -> Self {
